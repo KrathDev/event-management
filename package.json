@@ -1,0 +1,19 @@
+{
+  "name": "event_management",
+  "version": "1.0.0",
+  "description": "Đây là một ứng dụng web cho phép người dùng đăng ký, tìm kiếm, và đặt vé cho các sự kiện như hội thảo, hòa nhạc. Admin có thể tạo, chỉnh sửa, xóa sự kiện và xem thống kê về số lượng vé bán được. Hệ thống hỗ trợ thông báo thời gian thực khi có sự kiện mới, sử dụng Socket.IO. Backend được xây dựng bằng Node.js, Express, và MongoDB, tích hợp xác thực JWT và triển khai trên Heroku.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2"
+  }
+}
