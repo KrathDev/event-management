@@ -15,6 +15,7 @@ app.use(morgan("dev"));
 // Routes
 app.use("/api/v1/users", require("./routes/user.route"));
 app.use("/api/v1/events", require("./routes/event.route"));
+app.use("/api/v1/tickets", require("./routes/ticket.route"));
 
 const PORT = process.env.PORT || 3000;
 

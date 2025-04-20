@@ -1,10 +1,6 @@
 const bcrypt = require("bcrypt");
 
-const {
-  findUserByEmail,
-  createUser,
-  findUserById,
-} = require("../services/user.service");
+const userService = require("../services/user.service");
 const { generateToken } = require("../utils/jwt");
 
 const registerUser = async (req, res) => {
@@ -12,7 +8,7 @@ const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
 
     // Check if the email already exists
-    const existingEmail = await findUserByEmail(email);
+    const existingEmail = await userService.findUserByEmail(email);
     if (existingEmail) {
       return res.status(400).json({ message: "Email đã tồn tại!" });
     }
@@ -52,7 +48,7 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if the email exists
-    const user = await findUserByEmail(email);
+    const user = await userService.findUserByEmail(email);
     if (!user) {
       return res
         .status(400)
@@ -87,7 +83,7 @@ const loginUser = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
-    const user = await findUserById(req.user.userId);
+    const user = await userService.findUserById(req.user.userId);
     if (!user) {
       return res.status(404).json({ message: "Không tìm thấy người dùng" });
     }
