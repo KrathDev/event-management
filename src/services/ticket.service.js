@@ -1,6 +1,21 @@
 const Ticket = require("../models/Ticket");
 
-module.exports.createTicket = async (ticketData) => {
+module.exports.createTicket = async (ticketData, session) => {
   const ticket = new Ticket(ticketData);
-  return await ticket.save();
+  return await ticket.save({ session });
+};
+
+module.exports.getTicketsOfUser = async (find) => {
+  return await Ticket.find(find).populate(
+    "event",
+    "title description date location category price"
+  );
+};
+
+module.exports.getTicketsOfEvent = async (eventId, session) => {
+  return await Ticket.find({ event: eventId }).session(session);
+};
+
+module.exports.findTicketById = async (ticketId) => {
+  return await Ticket.findById(ticketId);
 };
