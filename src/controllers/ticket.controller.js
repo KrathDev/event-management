@@ -67,6 +67,20 @@ const getTicketsOfUser = async (req, res) => {
   }
 };
 
+// [GET] /api/v1/tickets/:eventId
+const getTicketsOfEvent = async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+
+    const tickets = await ticketService.getTicketsOfEvent(eventId);
+    res.status(200).json({
+      tickets,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
 // [PACTH] /api/v1/tickets/:id
 const cancelTicket = async (req, res) => {
   const session = await mongoose.startSession();
@@ -86,6 +100,12 @@ const cancelTicket = async (req, res) => {
     if (ticket.user.toString() !== userId) {
       return res.status(403).json({
         message: "Bạn không có quyền hủy ticket này",
+      });
+    }
+
+    if (ticket.status === "cancelled") {
+      return res.status(400).json({
+        message: "Ticket đã được hủy",
       });
     }
 
@@ -128,8 +148,70 @@ const cancelTicket = async (req, res) => {
   }
 };
 
+// [PACTH] /api/v1/tickets/admin/:id
+const cancelTicketByAdmin = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const ticketId = req.params.id;
+
+    const ticket = await ticketService.findTicketById(ticketId);
+
+    if (!ticket) {
+      return res.status(404).json({
+        message: "Không tìm thấy ticket",
+      });
+    }
+
+    if (ticket.status === "cancelled") {
+      return res.status(400).json({
+        message: "Ticket đã được hủy",
+      });
+    }
+
+    ticket.status = "cancelled";
+    await ticket.save({ session });
+
+    const event = await eventService.findEventById(ticket.event);
+
+    if (!event) {
+      return res.status(404).json({
+        message: "Không tìm thấy sự kiện",
+      });
+    }
+
+    event.ticketsAvailable += 1;
+    await event.save({ session });
+
+    const user = await userService.findUserById(ticket.user);
+    if (!user) {
+      return res.status(404).json({
+        message: "Không tìm thấy người dùng",
+      });
+    }
+
+    user.bookedTickets = user.bookedTickets.filter(
+      (ticket) => ticket.toString() !== ticketId
+    );
+    await user.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      message: "Hủy ticket thành công",
+      ticket,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
 module.exports = {
   createTicket,
   getTicketsOfUser,
   cancelTicket,
+  getTicketsOfEvent,
+  cancelTicketByAdmin,
 };

@@ -3,6 +3,7 @@ const eventService = require("../services/event.service");
 const ticketService = require("../services/ticket.service");
 const userService = require("../services/user.service");
 const mongoose = require("mongoose");
+const searchEvent = require("../utils/searchEvent");
 
 // [POST] /api/v1/events
 const createEvent = async (req, res) => {
@@ -20,7 +21,8 @@ const createEvent = async (req, res) => {
 // [GET] /api/v1/events
 const getAllEvents = async (req, res) => {
   try {
-    const events = await eventService.findAllEvents({});
+    const filter = searchEvent(req.query);
+    const events = await eventService.findAllEvents(filter);
 
     return res.status(200).json(events);
   } catch (error) {
@@ -77,7 +79,7 @@ const deleteEvent = async (req, res) => {
       return res.status(404).json({ message: "Sự kiện không tồn tại" });
     }
 
-    const tickets = await ticketService.getTicketsOfEvent(eventId, session);
+    const tickets = await ticketService.getTicketsOfEvent(eventId);
     for (const ticket of tickets) {
       ticket.status = "cancelled";
       await ticket.save({ session });

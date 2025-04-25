@@ -17,7 +17,7 @@ const registerUser = async (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, salt);
 
     // Create a new user object
-    const user = await createUser({
+    const user = await userService.createUser({
       username,
       email,
       password: hashedPassword,

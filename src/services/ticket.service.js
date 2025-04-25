@@ -12,8 +12,10 @@ module.exports.getTicketsOfUser = async (find) => {
   );
 };
 
-module.exports.getTicketsOfEvent = async (eventId, session) => {
-  return await Ticket.find({ event: eventId }).session(session);
+module.exports.getTicketsOfEvent = async (eventId) => {
+  return await Ticket.find({ event: eventId })
+    .populate("user", "username email")
+    .populate("event", "title description date location category price");
 };
 
 module.exports.findTicketById = async (ticketId) => {
